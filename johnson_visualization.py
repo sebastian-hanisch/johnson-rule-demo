@@ -42,20 +42,24 @@ def build_jobs_chart(p1, p2):
 
 def build_flow_gantt(p1, p2, order, c1, c2, upto=None):
     """Zwei Maschinenzeilen - Lücken entstehen, wenn Maschine 2 auf Maschine 1 (oder ihre eigene Vorgängerin)
-    warten muss, oder (Vehikel B) durch eine Rüstzeit beim Familienwechsel."""
+    warten muss, oder (Vehikel B) durch eine Rüstzeit beim Familienwechsel.
+
+    EIN Trace pro Maschine (nicht ein Trace pro Auftrag!) - mit vielen separaten Bar-Traces auf nur zwei
+    Kategoriewerten teilt Plotlys Default-Gruppierung die Zeilenhöhe durch die Anzahl der Traces auf (bei 20
+    Aufträgen wurden die Balken so nur ~1px hoch statt die Zeile zu füllen - kaum sichtbare Maschinenbelegung,
+    genau das vom Nutzer gemeldete Problem). Ein Trace mit `base` je Element umgeht das vollständig."""
     order = np.asarray(order)
     upto = len(order) if upto is None else upto
-    starts1 = np.asarray(c1) - p1[order]
-    starts2 = np.asarray(c2) - p2[order]
+    jobs = order[:upto]
+    starts1 = (np.asarray(c1) - p1[order])[:upto]
+    starts2 = (np.asarray(c2) - p2[order])[:upto]
     fig = go.Figure()
-    for i in range(upto):
-        j = order[i]
-        fig.add_trace(go.Bar(x=[float(p1[j])], y=["Maschine 1"], base=[float(starts1[i])], orientation="h",
-                              marker=dict(color=M1_COLOR, line=dict(width=1, color="white")), showlegend=False,
-                              hovertemplate=f"Auftrag {j}<br>Dauer {p1[j]}<extra></extra>"))
-        fig.add_trace(go.Bar(x=[float(p2[j])], y=["Maschine 2"], base=[float(starts2[i])], orientation="h",
-                              marker=dict(color=M2_COLOR, line=dict(width=1, color="white")), showlegend=False,
-                              hovertemplate=f"Auftrag {j}<br>Dauer {p2[j]}<extra></extra>"))
+    fig.add_trace(go.Bar(x=p1[jobs].astype(float).tolist(), y=["Maschine 1"] * upto, base=starts1.astype(float).tolist(),
+                          orientation="h", width=0.6, marker=dict(color=M1_COLOR, line=dict(width=1, color="white")), showlegend=False,
+                          customdata=jobs, hovertemplate="Auftrag %{customdata}<br>Dauer %{x}<extra></extra>"))
+    fig.add_trace(go.Bar(x=p2[jobs].astype(float).tolist(), y=["Maschine 2"] * upto, base=starts2.astype(float).tolist(),
+                          orientation="h", width=0.6, marker=dict(color=M2_COLOR, line=dict(width=1, color="white")), showlegend=False,
+                          customdata=jobs, hovertemplate="Auftrag %{customdata}<br>Dauer %{x}<extra></extra>"))
     fig.update_xaxes(title_text="Zeit")
     fig.update_yaxes(autorange="reversed")
     return _base(fig, 200)
