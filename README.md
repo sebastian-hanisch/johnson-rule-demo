@@ -1,6 +1,6 @@
 # Johnson-Regel – die erste Erweiterung auf zwei Maschinen – Streamlit-Demo
 
-**[→ Demo live ausprobieren](#) (Deploy offen)**
+**[→ Demo live ausprobieren](https://sebastianhanisch-johnson-rule-demo.streamlit.app/)**
 
 Sechstes Stück der **Klassische-Scheduling-Theorie-Linie** der "Konzepte"-Reihe für die Website "Sebastian Hanisch
 – Operations Research und Machine Learning": $n$ Aufträge, jeder mit ZWEI Operationen (erst Maschine 1, dann
